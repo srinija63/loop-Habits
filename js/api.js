@@ -12,7 +12,8 @@ const API_URL = (() => {
     // Local network - use same IP for backend
     return `http://${hostname}:5000/api`;
   } else {
-    return '/api'; // Production - same domain
+    // Production - use Render backend
+    return 'https://loop-habits.onrender.com/api';
   }
 })();
 
