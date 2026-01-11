@@ -245,11 +245,18 @@ export async function getStats(days = 30) {
 // ============================================
 
 /**
- * Check if backend is available
+ * Check if backend is available (with timeout)
  */
 export async function healthCheck() {
   try {
-    const response = await fetch(`${API_URL}/health`);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+    
+    const response = await fetch(`${API_URL}/health`, {
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeoutId);
     return response.ok;
   } catch {
     return false;
