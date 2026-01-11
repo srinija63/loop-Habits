@@ -281,10 +281,38 @@ async function loadLocalSettings() {
 // Authentication
 // ============================================
 
+function clearAuthForms() {
+  // Forcefully clear ALL form fields to prevent Safari autofill
+  setTimeout(() => {
+    // Clear login form
+    if (elements.loginEmail) elements.loginEmail.value = '';
+    if (elements.loginPassword) elements.loginPassword.value = '';
+    // Clear signup form
+    if (elements.signupName) elements.signupName.value = '';
+    if (elements.signupEmail) elements.signupEmail.value = '';
+    if (elements.signupPassword) elements.signupPassword.value = '';
+    
+    // Also clear any fake/honeypot fields
+    document.querySelectorAll('input[name^="fake"]').forEach(el => el.value = '');
+  }, 100);
+  
+  // Run again after a delay (Safari sometimes fills after initial load)
+  setTimeout(() => {
+    if (elements.loginEmail) elements.loginEmail.value = '';
+    if (elements.loginPassword) elements.loginPassword.value = '';
+    if (elements.signupName) elements.signupName.value = '';
+    if (elements.signupEmail) elements.signupEmail.value = '';
+    if (elements.signupPassword) elements.signupPassword.value = '';
+  }, 500);
+}
+
 function showAuthScreen() {
   elements.loadingScreen.classList.add('hidden');
   elements.authScreen.classList.remove('hidden');
   elements.mainApp.classList.add('hidden');
+  
+  // Clear forms to prevent autofill
+  clearAuthForms();
   
   // Clear any existing auth data when showing auth screen
   api.clearAuth();
