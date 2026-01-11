@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6c5ce7"/>
+      <stop offset="100%" style="stop-color:#5b4cdb"/>
+    </linearGradient>
+    <linearGradient id="ring-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#a29bfe"/>
+      <stop offset="100%" style="stop-color:#6c5ce7"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="512" height="512" rx="96" fill="url(#bg-gradient)"/>
+  
+  <!-- Outer ring (progress) -->
+  <circle 
+    cx="256" 
+    cy="256" 
+    r="160" 
+    fill="none" 
+    stroke="rgba(255,255,255,0.2)" 
+    stroke-width="24"
+  />
+  
+  <!-- Progress arc (75% complete) -->
+  <circle 
+    cx="256" 
+    cy="256" 
+    r="160" 
+    fill="none" 
+    stroke="url(#ring-gradient)" 
+    stroke-width="24"
+    stroke-linecap="round"
+    stroke-dasharray="754"
+    stroke-dashoffset="188"
+    transform="rotate(-90 256 256)"
+  />
+  
+  <!-- Inner circle -->
+  <circle 
+    cx="256" 
+    cy="256" 
+    r="100" 
+    fill="rgba(255,255,255,0.1)"
+  />
+  
+  <!-- Checkmark -->
+  <path 
+    d="M200 260 L240 300 L320 210" 
+    fill="none" 
+    stroke="white" 
+    stroke-width="28" 
+    stroke-linecap="round" 
+    stroke-linejoin="round"
+  />
+</svg>

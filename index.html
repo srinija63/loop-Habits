@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Loop Habits">
+    <meta name="description" content="Build and maintain good habits with Loop Habit Tracker">
+    
+    <title>Loop Habits</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link rel="icon" type="image/png" href="icons/icon-192.png">
+    
+    <!-- Google Fonts - Unique typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Loading Screen -->
+        <div id="loading-screen" class="loading-screen">
+            <div class="loading-content">
+                <div class="loading-icon">
+                    <svg viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="45" fill="none" stroke="var(--primary)" stroke-width="3" stroke-dasharray="283" stroke-dashoffset="75">
+                            <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="1s" repeatCount="indefinite"/>
+                        </circle>
+                    </svg>
+                </div>
+                <h1>Loop Habits</h1>
+                <p>Loading your habits...</p>
+            </div>
+        </div>
+
+        <!-- Auth Screen (Login/Signup) -->
+        <div id="auth-screen" class="auth-screen hidden">
+            <div class="auth-container">
+                <div class="auth-header">
+                    <div class="auth-logo">
+                        <div class="logo-circle large"></div>
+                    </div>
+                    <h1>Loop Habits</h1>
+                    <p>Build better habits, one day at a time</p>
+                </div>
+
+                <!-- Login Form -->
+                <form id="login-form" class="auth-form" autocomplete="off" novalidate>
+                    <h2>Welcome Back</h2>
+                    
+                    <div class="form-group">
+                        <label for="login-email">Email</label>
+                        <input type="text" id="login-email" name="login-email-field" placeholder="your@email.com" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <input type="text" id="login-password" name="login-pass-field" placeholder="••••••••" autocomplete="new-password" class="password-field">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <span class="btn-text">Log In</span>
+                        <span class="btn-loader hidden">
+                            <svg class="spinner" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="3" stroke-dasharray="32" stroke-linecap="round">
+                                    <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="0.8s" repeatCount="indefinite"/>
+                                </circle>
+                            </svg>
+                        </span>
+                    </button>
+
+                    <p class="auth-switch">
+                        Don't have an account? <a href="#" id="show-signup">Sign up</a>
+                    </p>
+                </form>
+
+                <!-- Signup Form -->
+                <form id="signup-form" class="auth-form" autocomplete="off" novalidate>
+                    <h2>Create Account</h2>
+                    
+                    <div class="form-group">
+                        <label for="signup-name">Name</label>
+                        <input type="text" id="signup-name" name="signup-name-field" placeholder="Your name" autocomplete="off">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="signup-email">Email</label>
+                        <input type="text" id="signup-email" name="signup-email-field" placeholder="your@email.com" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="signup-password">Password</label>
+                        <input type="text" id="signup-password" name="signup-pass-field" placeholder="At least 6 characters" autocomplete="new-password" class="password-field">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <span class="btn-text">Create Account</span>
+                        <span class="btn-loader hidden">
+                            <svg class="spinner" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="3" stroke-dasharray="32" stroke-linecap="round">
+                                    <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="0.8s" repeatCount="indefinite"/>
+                                </circle>
+                            </svg>
+                        </span>
+                    </button>
+
+                    <p class="auth-switch">
+                        Already have an account? <a href="#" id="show-login">Log in</a>
+                    </p>
+                </form>
+
+                <div class="auth-error hidden" id="auth-error">
+                    <p id="auth-error-message">Error message</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main App Container -->
+        <div id="main-app" class="main-app hidden">
+            <!-- Header -->
+            <header class="app-header">
+                <div class="header-left">
+                    <button id="menu-btn" class="icon-btn" aria-label="Menu">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                    <h1 class="app-title">Loop Habits</h1>
+                </div>
+                <div class="header-right">
+                    <button id="stats-btn" class="icon-btn" aria-label="Statistics">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 20V10M12 20V4M6 20v-6"></path>
+                        </svg>
+                    </button>
+                    <button id="settings-btn" class="icon-btn" aria-label="Settings">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"></path>
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Navigation Tabs -->
+            <nav class="tab-nav">
+                <button class="tab-btn active" data-tab="today">Today</button>
+                <button class="tab-btn" data-tab="habits">All Habits</button>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <!-- Today View -->
+                <section id="today-view" class="view active">
+                    <div class="date-header">
+                        <button id="prev-day" class="nav-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="15 18 9 12 15 6"></polyline>
+                            </svg>
+                        </button>
+                        <div class="date-display">
+                            <span id="current-date" class="current-date">Today</span>
+                            <span id="date-subtitle" class="date-subtitle"></span>
+                        </div>
+                        <button id="next-day" class="nav-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="9 18 15 12 9 6"></polyline>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div id="habits-list" class="habits-list">
+                        <!-- Habits will be rendered here -->
+                    </div>
+
+                    <div id="empty-state" class="empty-state hidden">
+                        <div class="empty-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                            </svg>
+                        </div>
+                        <h3>No habits yet</h3>
+                        <p>Tap the + button to create your first habit</p>
+                    </div>
+                </section>
+
+                <!-- All Habits View -->
+                <section id="habits-view" class="view">
+                    <div id="all-habits-list" class="habits-list">
+                        <!-- All habits will be rendered here -->
+                    </div>
+                </section>
+            </main>
+
+            <!-- Floating Action Button -->
+            <button id="fab" class="fab" aria-label="Add Habit">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+            </button>
+
+            <!-- Bottom Navigation -->
+            <nav class="bottom-nav">
+                <button class="bottom-nav-btn active" data-view="home">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                    <span>Home</span>
+                </button>
+                <button class="bottom-nav-btn" data-view="statistics">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 20V10M12 20V4M6 20v-6"></path>
+                    </svg>
+                    <span>Stats</span>
+                </button>
+                <button class="bottom-nav-btn" data-view="settings">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
+                    <span>Settings</span>
+                </button>
+            </nav>
+        </div>
+
+        <!-- Side Menu -->
+        <div id="side-menu" class="side-menu">
+            <div class="side-menu-overlay"></div>
+            <div class="side-menu-content">
+                <div class="side-menu-header">
+                    <div class="app-logo">
+                        <div class="logo-circle"></div>
+                    </div>
+                    <h2>Loop Habits</h2>
+                    <p class="version">Version 1.0.0</p>
+                </div>
+                <div class="side-menu-user" id="side-menu-user">
+                    <div class="user-avatar" id="user-avatar">U</div>
+                    <div class="user-info">
+                        <span class="user-name" id="user-name">User</span>
+                        <span class="user-email" id="user-email">user@email.com</span>
+                    </div>
+                </div>
+                <nav class="side-menu-nav">
+                    <a href="#" class="menu-item" data-action="export-csv">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path>
+                        </svg>
+                        Export to CSV
+                    </a>
+                    <a href="#" class="menu-item" data-action="import">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"></path>
+                        </svg>
+                        Import Data
+                    </a>
+                    <div class="menu-divider"></div>
+                    <a href="#" class="menu-item" data-action="about">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                        About
+                    </a>
+                    <div class="menu-divider"></div>
+                    <a href="#" class="menu-item logout-item" data-action="logout">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                        Log Out
+                    </a>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Statistics Modal -->
+        <div id="statistics-modal" class="modal">
+            <div class="modal-content large">
+                <div class="modal-header">
+                    <h2>Statistics</h2>
+                    <button class="modal-close" aria-label="Close">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="stats-overview">
+                        <div class="stat-card">
+                            <span class="stat-value" id="total-habits">0</span>
+                            <span class="stat-label">Total Habits</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-value" id="completed-today">0</span>
+                            <span class="stat-label">Completed Today</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-value" id="best-streak">0</span>
+                            <span class="stat-label">Best Streak</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-value" id="overall-score">0%</span>
+                            <span class="stat-label">Overall Score</span>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-section">
+                        <h3>Last 30 Days</h3>
+                        <div class="chart-container">
+                            <canvas id="monthly-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-section">
+                        <h3>Weekly Performance</h3>
+                        <div class="chart-container">
+                            <canvas id="weekly-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Modal -->
+        <div id="settings-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Settings</h2>
+                    <button class="modal-close" aria-label="Close">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <span class="setting-label">Dark Mode</span>
+                            <span class="setting-desc">Use dark theme</span>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" id="dark-mode-toggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <span class="setting-label">Week Starts On</span>
+                            <span class="setting-desc">First day of the week</span>
+                        </div>
+                        <select id="week-start" class="setting-select">
+                            <option value="0">Sunday</option>
+                            <option value="1">Monday</option>
+                        </select>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <span class="setting-label">Show Confetti</span>
+                            <span class="setting-desc">Celebrate completions</span>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" id="confetti-toggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="setting-section">
+                        <h3>Data Management</h3>
+                        <button class="setting-btn" id="export-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path>
+                            </svg>
+                            Export Data (CSV)
+                        </button>
+                        <button class="setting-btn danger" id="clear-data-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                            Clear All Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Create/Edit Habit Modal -->
+        <div id="habit-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="habit-modal-title">Create Habit</h2>
+                    <button class="modal-close" aria-label="Close">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="habit-form">
+                        <input type="hidden" id="habit-id">
+                        
+                        <div class="form-group">
+                            <label for="habit-name">Name</label>
+                            <input type="text" id="habit-name" placeholder="e.g., Exercise" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="habit-question">Question (optional)</label>
+                            <input type="text" id="habit-question" placeholder="e.g., Did you exercise today?">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Color</label>
+                            <div class="color-picker" id="color-picker">
+                                <button type="button" class="color-option selected" data-color="#e74c3c" style="background: #e74c3c"></button>
+                                <button type="button" class="color-option" data-color="#e91e63" style="background: #e91e63"></button>
+                                <button type="button" class="color-option" data-color="#9c27b0" style="background: #9c27b0"></button>
+                                <button type="button" class="color-option" data-color="#673ab7" style="background: #673ab7"></button>
+                                <button type="button" class="color-option" data-color="#3f51b5" style="background: #3f51b5"></button>
+                                <button type="button" class="color-option" data-color="#2196f3" style="background: #2196f3"></button>
+                                <button type="button" class="color-option" data-color="#03a9f4" style="background: #03a9f4"></button>
+                                <button type="button" class="color-option" data-color="#00bcd4" style="background: #00bcd4"></button>
+                                <button type="button" class="color-option" data-color="#009688" style="background: #009688"></button>
+                                <button type="button" class="color-option" data-color="#4caf50" style="background: #4caf50"></button>
+                                <button type="button" class="color-option" data-color="#8bc34a" style="background: #8bc34a"></button>
+                                <button type="button" class="color-option" data-color="#ffeb3b" style="background: #ffeb3b"></button>
+                                <button type="button" class="color-option" data-color="#ffc107" style="background: #ffc107"></button>
+                                <button type="button" class="color-option" data-color="#ff9800" style="background: #ff9800"></button>
+                                <button type="button" class="color-option" data-color="#ff5722" style="background: #ff5722"></button>
+                                <button type="button" class="color-option" data-color="#795548" style="background: #795548"></button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Icon</label>
+                            <div class="icon-picker" id="icon-picker">
+                                <button type="button" class="icon-option selected" data-icon="🏃">🏃</button>
+                                <button type="button" class="icon-option" data-icon="💪">💪</button>
+                                <button type="button" class="icon-option" data-icon="📚">📚</button>
+                                <button type="button" class="icon-option" data-icon="💧">💧</button>
+                                <button type="button" class="icon-option" data-icon="🧘">🧘</button>
+                                <button type="button" class="icon-option" data-icon="😴">😴</button>
+                                <button type="button" class="icon-option" data-icon="🥗">🥗</button>
+                                <button type="button" class="icon-option" data-icon="💊">💊</button>
+                                <button type="button" class="icon-option" data-icon="✍️">✍️</button>
+                                <button type="button" class="icon-option" data-icon="🎵">🎵</button>
+                                <button type="button" class="icon-option" data-icon="🎨">🎨</button>
+                                <button type="button" class="icon-option" data-icon="💻">💻</button>
+                                <button type="button" class="icon-option" data-icon="🌱">🌱</button>
+                                <button type="button" class="icon-option" data-icon="☀️">☀️</button>
+                                <button type="button" class="icon-option" data-icon="🌙">🌙</button>
+                                <button type="button" class="icon-option" data-icon="❤️">❤️</button>
+                                <button type="button" class="icon-option" data-icon="⭐">⭐</button>
+                                <button type="button" class="icon-option" data-icon="🎯">🎯</button>
+                                <button type="button" class="icon-option" data-icon="📝">📝</button>
+                                <button type="button" class="icon-option" data-icon="🧹">🧹</button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="habit-frequency">Frequency</label>
+                            <select id="habit-frequency" class="form-select">
+                                <option value="daily">Every day</option>
+                                <option value="weekly">X times per week</option>
+                                <option value="interval">Every X days</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group frequency-options" id="weekly-options" style="display: none;">
+                            <label for="habit-times-per-week">Times per week</label>
+                            <input type="number" id="habit-times-per-week" min="1" max="7" value="3">
+                        </div>
+
+                        <div class="form-group frequency-options" id="interval-options" style="display: none;">
+                            <label for="habit-interval">Every how many days?</label>
+                            <input type="number" id="habit-interval" min="2" max="30" value="2">
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" id="cancel-habit-btn">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save Habit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Habit Detail Modal -->
+        <div id="habit-detail-modal" class="modal">
+            <div class="modal-content large">
+                <div class="modal-header">
+                    <div class="habit-detail-header">
+                        <span class="habit-detail-icon" id="detail-icon">🏃</span>
+                        <h2 id="detail-title">Habit Name</h2>
+                    </div>
+                    <button class="modal-close" aria-label="Close">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="habit-detail-stats">
+                        <div class="detail-stat">
+                            <span class="detail-stat-value" id="detail-score">0%</span>
+                            <span class="detail-stat-label">Strength</span>
+                        </div>
+                        <div class="detail-stat">
+                            <span class="detail-stat-value" id="detail-streak">0</span>
+                            <span class="detail-stat-label">Current Streak</span>
+                        </div>
+                        <div class="detail-stat">
+                            <span class="detail-stat-value" id="detail-best">0</span>
+                            <span class="detail-stat-label">Best Streak</span>
+                        </div>
+                        <div class="detail-stat">
+                            <span class="detail-stat-value" id="detail-total">0</span>
+                            <span class="detail-stat-label">Total</span>
+                        </div>
+                    </div>
+
+                    <div class="calendar-section">
+                        <div class="calendar-header">
+                            <button class="calendar-nav" id="prev-month">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="15 18 9 12 15 6"></polyline>
+                                </svg>
+                            </button>
+                            <span id="calendar-month">January 2026</span>
+                            <button class="calendar-nav" id="next-month">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="9 18 15 12 9 6"></polyline>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="calendar-weekdays">
+                            <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+                        </div>
+                        <div class="calendar-grid" id="calendar-grid">
+                            <!-- Calendar days will be rendered here -->
+                        </div>
+                    </div>
+
+                    <div class="chart-section">
+                        <h3>Habit Strength Over Time</h3>
+                        <div class="chart-container">
+                            <canvas id="habit-score-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="habit-detail-actions">
+                        <button class="btn btn-secondary" id="edit-habit-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                            Edit
+                        </button>
+                        <button class="btn btn-danger" id="delete-habit-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Confirm Dialog -->
+        <div id="confirm-dialog" class="modal">
+            <div class="modal-content small">
+                <div class="modal-body confirm-body">
+                    <h3 id="confirm-title">Are you sure?</h3>
+                    <p id="confirm-message">This action cannot be undone.</p>
+                    <div class="confirm-actions">
+                        <button class="btn btn-secondary" id="confirm-cancel">Cancel</button>
+                        <button class="btn btn-danger" id="confirm-ok">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- About Modal -->
+        <div id="about-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>About Loop Habits</h2>
+                    <button class="modal-close" aria-label="Close">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-body about-body">
+                    <div class="about-logo">
+                        <div class="logo-circle large"></div>
+                    </div>
+                    <h3>Loop Habit Tracker</h3>
+                    <p class="version">Version 1.0.0</p>
+                    <p class="about-desc">
+                        Build and maintain good habits with Loop. Track your progress,
+                        view detailed statistics, and achieve your long-term goals.
+                    </p>
+                    <div class="about-features">
+                        <div class="about-feature">✓ No ads, completely free</div>
+                        <div class="about-feature">✓ All data stored locally</div>
+                        <div class="about-feature">✓ Works offline</div>
+                        <div class="about-feature">✓ Export your data anytime</div>
+                    </div>
+                    <p class="about-credit">
+                        Inspired by <a href="https://play.google.com/store/apps/details?id=org.isoron.uhabits" target="_blank">Loop Habit Tracker</a> for Android
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div id="toast" class="toast">
+            <span id="toast-message">Action completed</span>
+        </div>
+
+        <!-- Confetti Canvas -->
+        <canvas id="confetti-canvas" class="confetti-canvas"></canvas>
+    </div>
+
+    <!-- Import file input (hidden) -->
+    <input type="file" id="import-file" accept=".csv,.json" style="display: none;">
+
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
