@@ -12,8 +12,8 @@ const API_URL = (() => {
     // Local network - use same IP for backend
     return `http://${hostname}:5000/api`;
   } else {
-    // Production - use Render backend
-    return 'https://loop-habits.onrender.com/api';
+    // Production - use Vercel backend
+    return 'https://loop-habits-rat699zx8-srinis-projects-28ee38af.vercel.app/api';
   }
 })();
 
